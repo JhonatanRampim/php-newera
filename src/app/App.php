@@ -2,37 +2,60 @@
 
 declare(strict_types=1);
 
-$files = getAllTransactionFiles();
-$filesContent = [];
-if ($files === 0) {
-    echo 'dir is empty';
-}
-
-$filesContent = readFileContent($files[0]);
-$tableHeader = $filesContent[0];
-$tableBody = array_values(array_filter($filesContent, fn ($key) => $key > 0, ARRAY_FILTER_USE_KEY));
-
-
 function getAllTransactionFiles(): array
 {
-    if (!is_dir(FILES_PATH)) {
-        return [];
+    $scannedFiles = [];
+    foreach (scandir(FILES_PATH) as $file) {
+        if (is_dir($file)) {
+            continue;
+        }
+        $scannedFiles[] = FILES_PATH . $file;
     }
-    $directories = scandir(FILES_PATH);
-    $scannedFiles = array_values(array_filter($directories, fn ($val, $key) => $val[$key] > 1, ARRAY_FILTER_USE_BOTH));
     return $scannedFiles;
 }
 
 function readFileContent(string $file): array
 {
-    $fileData = [];
-    if (!is_file(FILES_PATH . $file)) {
+    if (!is_file($file)) {
         return [];
     }
-    $openedFiles = fopen(FILES_PATH . $file, 'r');
+    $openedFiles = fopen($file, 'r');
+    fgetcsv($openedFiles);
+    $fileData = [];
     while (($content = fgetcsv($openedFiles)) !== false) {
-        $fileData[] = $content;
+        $fileData[] =  extractTransactions($content);
     }
     fclose($openedFiles);
     return $fileData;
+}
+
+function extractTransactions($transaction)
+{
+    [$date, $checkNumber, $description, $amount] = $transaction;
+    $amount = (float) str_replace(['$', ','], '', $amount);
+
+    return [
+        'date' => $date,
+        'check' => $checkNumber,
+        'description' => $description,
+        'amount' => $amount
+    ];
+}
+
+function getTotals($expenseData)
+{
+    $totals = [];
+    $totals['expense'] = 0;
+    $totals['income'] = 0;
+    $totals['net'] = 0;
+    foreach ($expenseData as $key => $value) {
+        if ($value['amount'] < 0) {
+            $totals['expense'] += $value['amount'];
+        }
+        if ($value['amount'] > 0) {
+            $totals['income'] += $value['amount'];
+        }
+    }
+    $totals['net'] = $totals['income'] + $totals['expense'];
+    return $totals;
 }

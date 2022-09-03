@@ -26,6 +26,14 @@
         tfoot tr th {
             text-align: right;
         }
+
+        .expense {
+            color: red;
+        }
+
+        .income {
+            color: green;
+        }
     </style>
 </head>
 
@@ -33,39 +41,48 @@
     <table>
         <thead>
             <tr>
-                <?php foreach ($tableHeader  as $key => $header) : ?>
-                    <th><?= $header ?></th>
-                <?php endforeach; ?>
+                <th>Date</th>
+                <th>Check #</th>
+                <th>Description</th>
+                <th>Amount</th>
             </tr>
         </thead>
-        <?php foreach ($tableBody as $key => $body) : ?>
+        <?php foreach ($expenseData as $key => $body) : ?>
             <tbody>
                 <tr>
-                    <td><?= date('M d, Y', strtotime($body[0])); ?></td>
-                    <td><?= $body[1] ?></td>
-                    <td><?= $body[2] ?></td>
-                    <td><?= $body[3] ?></td>
+                    <td><?= date('M d, Y', strtotime($body['date'])); ?></td>
+                    <td><?= $body['check'] ?></td>
+                    <td><?= $body['description'] ?></td>
+                    <?php if ($body['amount'] < 0) : ?>
+                        <td class="expense"><?= addDollarSign($body['amount']) ?></td>
+                    <?php elseif ($body['amount'] > 0) : ?>
+                        <td class="income"><?= addDollarSign($body['amount']) ?></td>
+                    <?php else : ?>
+                        <td><?= addDollarSign($body['amount']) ?></td>
+                    <?php endif; ?>
                 </tr>
             </tbody>
         <?php endforeach; ?>
         <tfoot>
             <tr>
                 <th colspan="3">Total Income:</th>
-                <td>
-                    <!-- YOUR CODE -->
+                <td class="income">
+                    <?= addDollarSign(($totals['income'])) ?? 0 ?>
                 </td>
             </tr>
             <tr>
                 <th colspan="3">Total Expense:</th>
-                <td>
-                    <!-- YOUR CODE -->
+                <td class="expense">
+                    <?= addDollarSign(($totals['expense'])) ?? 0 ?>
                 </td>
             </tr>
             <tr>
                 <th colspan="3">Net Total:</th>
-                <td>
-                    <!-- YOUR CODE -->
-                </td>
+                <?php if (isset($totals['net'])) : ?>
+                    <td <?= ($totals['net'] > 0) ? 'class="income"' : 'class="expense"' ?>>
+                        <?= addDollarSign($totals['net']) ?>
+                    </td>
+                <?php endif; ?>
             </tr>
         </tfoot>
     </table>
