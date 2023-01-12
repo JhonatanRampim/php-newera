@@ -1,0 +1,17 @@
+{
+    "name": "jhonatan.rampim/php-newera",
+    "description": "Only for learning",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Jhonatan Rampim",
+            "email": "jhonatan.rampim@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    }
+}
