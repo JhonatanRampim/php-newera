@@ -1,19 +1,18 @@
 <?php
 
+use App\Router;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$coffeeMaker = new \App\CoffeeMaker();
-$coffeeMaker->makeCoffee();
+$router = new Router();
 
-$coffeeMaker = new \App\CappuccinoMaker();
-$coffeeMaker->makeCappuccino();
-$coffeeMaker->makeCoffee();
+$router->register('/', function () {
+    echo 'Home';
+});
 
-$coffeeMaker = new \App\LatteMaker();
-$coffeeMaker->makeLatte();
-$coffeeMaker->makeCoffee();
+$router->register('/index.php/invoices', function () {
+    echo 'Invoices';
+});
 
-$allInOneCoffeeMaker = new \App\AllInOneCoffeeMaker();
-$allInOneCoffeeMaker->makeLatte();
-$allInOneCoffeeMaker->makeCoffee();
-$allInOneCoffeeMaker->makeCappuccino();
+
+echo $router->resolve($_SERVER['REQUEST_URI']);
